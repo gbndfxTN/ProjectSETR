@@ -1,19 +1,28 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-//WIFI
-#define WIFI_SSID "Wokwi-GUEST"      // WiFi simulé par Wokwi
-#define WIFI_PASSWORD ""
-//#define WIFI_SSID "TON_SSID"              
-//#define WIFI_PASSWORD "TON_MOT_DE_PASSE" 
+// WIFI
+#define WIFI_SSID "Pixel" // WiFi simulé par Wokwi
+#define WIFI_PASSWORD "welcomesp"
+// #define WIFI_SSID "TON_SSID"
+// #define WIFI_PASSWORD "TON_MOT_DE_PASSE"
 
-//Serveur MQTT
-#define MQTT_SERVER   "192.168.1.24"
-#define MQTT_PORT     1883
-#define MQTT_USER     "gbndfx"
+// Serveur MQTT
+#define MQTT_SERVER "192.168.1.24"
+#define MQTT_PORT 1883
+#define MQTT_USER "gbndfx"
 #define MQTT_PASSWORD "?Nala08200!!"
 
-//PINS capteurs
+// Firebase Realtime Database (demo scolaire)
+#define FIREBASE_DATABASE_URL                                                  \
+  "https://setr-26895-default-rtdb.europe-west1.firebasedatabase.app"
+#define FIREBASE_DEVICE_ID "demo-esp32-a84k2m9"
+#define FIREBASE_CURRENT_INTERVAL_MS 5000
+#define FIREBASE_HISTORY_INTERVAL_MS 60000
+#define WIFI_RECONNECT_INTERVAL_MS 5000
+#define FIREBASE_HTTP_TIMEOUT_MS 8000
+
+// PINS capteurs
 #define DHT_PIN 15
 #define DHT_TYPE DHT22
 #define DHT_DELAY 2000
@@ -39,7 +48,7 @@
 // Producteurs multiples / consommateur unique
 #define SENSOR_QUEUE_LENGTH 16
 
-//PINS écran
+// PINS écran
 #define OLED_SDA_PIN 5
 #define OLED_SCL_PIN 4
 #define OLED_I2C_ADDRESS 0x3C
