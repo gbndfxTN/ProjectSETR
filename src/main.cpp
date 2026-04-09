@@ -65,14 +65,15 @@ void task_producer_rs232(void*) {
 #else
   sensor_uart_init();
   for (;;) {
-    float co2_ppm = 0.0f;
+    float co2_ppm_uart = 0.0f;
+    float co2_ppm_pwm = 0.0f;
     bool presence = false;
 
-    if (sensor_uart_read_remote(co2_ppm, presence) && g_sensor_queue != nullptr) {
+    if (sensor_uart_read_remote(co2_ppm_uart, co2_ppm_pwm, presence) && g_sensor_queue != nullptr) {
       SensorMessage msg{};
       msg.type = SensorMessageType::Remote;
-      msg.value1 = co2_ppm;
-      msg.value2 = 0.0f;
+      msg.value1 = co2_ppm_uart;
+      msg.value2 = co2_ppm_pwm;
       msg.flag = presence;
       xQueueSend(g_sensor_queue, &msg, pdMS_TO_TICKS(20));
     }
@@ -92,7 +93,7 @@ void task_consumer_display(void*) {
       if (msg.type == SensorMessageType::Dht) {
         sensor_data_set_dht(msg.value1, msg.value2);
       } else if (msg.type == SensorMessageType::Remote) {
-        sensor_data_set_remote(msg.value1, msg.flag);
+        sensor_data_set_remote(msg.value1, msg.value2, msg.flag);
       }
     }
 

@@ -16,8 +16,9 @@ bool sensor_read_dht(float &temperature, float &humidity);
 
 // Initialiser et lire la liaison RS232 venant de l'autre ESP32
 void sensor_uart_init();
-bool sensor_uart_read_remote(float &co2_ppm, bool &presence_detected);
+bool sensor_uart_read_remote(float &co2_ppm_uart, float &co2_ppm_pwm, bool &presence_detected);
 
-// Trame attendue (ASCII): "CO2:<ppm>;PRES:<0|1>\n"
+// Trame attendue (ASCII): "CO2_UART:<ppm>;CO2_PWM:<ppm>;PRES:<0|1>\n"
+// Fallback accepte: "CO2:<ppm>;PRES:<0|1>\n" et "<ppm>;<0|1>"
 
 #endif

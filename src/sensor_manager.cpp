@@ -11,23 +11,38 @@ constexpr size_t RX_BUFFER_SIZE = 64;
 char rx_line[RX_BUFFER_SIZE];
 size_t rx_len = 0;
 
-bool parse_remote_frame(const char *line, float &co2_ppm, bool &presence_detected) {
+bool parse_remote_frame(const char *line, float &co2_ppm_uart, float &co2_ppm_pwm, bool &presence_detected) {
     if (line == nullptr) {
         return false;
     }
 
-    float parsed_co2 = 0.0f;
+    float parsed_co2_uart = 0.0f;
+    float parsed_co2_pwm = 0.0f;
     int parsed_presence = 0;
 
-    // Format principal: CO2:700;PRES:1
-    if (sscanf(line, "CO2:%f;PRES:%d", &parsed_co2, &parsed_presence) != 2) {
-        // Format de secours: 700;1
-        if (sscanf(line, "%f;%d", &parsed_co2, &parsed_presence) != 2) {
-            return false;
-        }
+    // Format principal: CO2_UART:700;CO2_PWM:690;PRES:1
+    if (sscanf(line, "CO2_UART:%f;CO2_PWM:%f;PRES:%d", &parsed_co2_uart, &parsed_co2_pwm, &parsed_presence) == 3) {
+        co2_ppm_uart = parsed_co2_uart;
+        co2_ppm_pwm = parsed_co2_pwm;
+        presence_detected = (parsed_presence != 0);
+        return true;
     }
 
-    co2_ppm = parsed_co2;
+    // Compatibilite avec l'ancien format: CO2:700;PRES:1
+    if (sscanf(line, "CO2:%f;PRES:%d", &parsed_co2_uart, &parsed_presence) == 2) {
+        co2_ppm_uart = parsed_co2_uart;
+        co2_ppm_pwm = parsed_co2_uart;
+        presence_detected = (parsed_presence != 0);
+        return true;
+    }
+
+    // Format de secours: 700;1
+    if (sscanf(line, "%f;%d", &parsed_co2_uart, &parsed_presence) != 2) {
+        return false;
+    }
+
+    co2_ppm_uart = parsed_co2_uart;
+    co2_ppm_pwm = parsed_co2_uart;
     presence_detected = (parsed_presence != 0);
     return true;
 }
@@ -72,7 +87,7 @@ void sensor_uart_init() {
     printf("RS232 activee (%d bauds) RX=%d TX=%d\n", RS232_BAUD, RS232_RX_PIN, RS232_TX_PIN);
 }
 
-bool sensor_uart_read_remote(float &co2_ppm, bool &presence_detected) {
+bool sensor_uart_read_remote(float &co2_ppm_uart, float &co2_ppm_pwm, bool &presence_detected) {
     while (rs232.available() > 0) {
         const char c = static_cast<char>(rs232.read());
 
@@ -82,7 +97,7 @@ bool sensor_uart_read_remote(float &co2_ppm, bool &presence_detected) {
 
         if (c == '\n') {
             rx_line[rx_len] = '\0';
-            const bool parsed = parse_remote_frame(rx_line, co2_ppm, presence_detected);
+            const bool parsed = parse_remote_frame(rx_line, co2_ppm_uart, co2_ppm_pwm, presence_detected);
             if (!parsed) {
                 printf("[RS232] Trame ignoree: %s\n", rx_line);
             }

@@ -13,7 +13,8 @@ struct SensorData {
   float humidity;
   
   // CO2 (recu via RS232 depuis l'autre ESP32)
-  float co2_ppm;
+  float co2_ppm_uart;
+  float co2_ppm_pwm;
   
   // Presence (recu via RS232)
   bool presence_detected;

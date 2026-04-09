@@ -86,7 +86,7 @@ void display_update() {
 
 	snprintf(line1, sizeof(line1), "%s", data.presence_detected ? "PRESENCE DETECTEE" : "Zone vide");
 	snprintf(line2, sizeof(line2), "T:%.1fC H:%.1f%%", data.temperature, data.humidity);
-	snprintf(line3, sizeof(line3), "CO2: %.0f ppm", data.co2_ppm);
+	snprintf(line3, sizeof(line3), "U:%.0f P:%.0f ppm", data.co2_ppm_uart, data.co2_ppm_pwm);
 	#if USE_EXTERNAL_SYNC
 	snprintf(line4, sizeof(line4), "SYNC: EXTERNE");
 	#else
