@@ -26,7 +26,7 @@
 // Simulation de l'autre ESP32 (CO2 + presence)
 // 1 = simule les donnees distantes sans carte externe
 // 0 = lit les donnees reelles sur la liaison RS232
-#define SIMULATE_REMOTE_ESP 1
+#define SIMULATE_REMOTE_ESP 0
 #define REMOTE_SIM_DELAY_MS 1000
 
 // Synchronisation externe de l'affichage
