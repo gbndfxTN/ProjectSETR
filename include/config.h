@@ -46,7 +46,7 @@
 #define OLED_WIDTH_PX 128
 #define OLED_HEIGHT_PX 64
 #define OLED_RESET_PIN -1
-#define OLED_TEXT_SIZE 1
+#define OLED_TEXT_SIZE 2
 #define OLED_LINE_HEIGHT 16
 #define OLED_MAX_CHARS_PER_LINE 21
 #define FPS 30

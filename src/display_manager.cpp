@@ -68,6 +68,27 @@ void display_update() {
 		return;
 	}
 
+	if (data.last_update_remote == 0UL) {
+		oled.clearDisplay();
+		char line1[OLED_MAX_CHARS_PER_LINE + 1];
+		char line2[OLED_MAX_CHARS_PER_LINE + 1];
+		char line3[OLED_MAX_CHARS_PER_LINE + 1];
+		char line4[OLED_MAX_CHARS_PER_LINE + 1];
+
+		snprintf(line1, sizeof(line1), "ATTENTE");
+		snprintf(line2, sizeof(line2), "RS232");
+		snprintf(line3, sizeof(line3), "T:%.1fC", data.temperature);
+		snprintf(line4, sizeof(line4), "H:%.1f%%", data.humidity);
+
+		print_line(0 * OLED_LINE_HEIGHT, line1);
+		print_line(1 * OLED_LINE_HEIGHT, line2);
+		print_line(2 * OLED_LINE_HEIGHT, line3);
+		print_line(3 * OLED_LINE_HEIGHT, line4);
+		oled.display();
+		screen_blank = false;
+		return;
+	}
+
 	if (!data.presence_detected) {
 		if (!screen_blank) {
 			oled.clearDisplay();
@@ -84,10 +105,10 @@ void display_update() {
 	char line3[OLED_MAX_CHARS_PER_LINE + 1];
 	char line4[OLED_MAX_CHARS_PER_LINE + 1];
 
-	snprintf(line1, sizeof(line1), "Temperature: %.1fC", data.temperature);
-	snprintf(line2, sizeof(line2), "Humidite: %.1f%%", data.humidity);
-	snprintf(line3, sizeof(line3), "CO2 PWM: %.0f ppm", data.co2_ppm_pwm);
-	snprintf(line4, sizeof(line4), "CO2 UART: %.0f ppm", data.co2_ppm_uart);
+	snprintf(line1, sizeof(line1), "T:%.1fC", data.temperature);
+	snprintf(line2, sizeof(line2), "H:%.1f%%", data.humidity);
+	snprintf(line3, sizeof(line3), "P:%.0fppm", data.co2_ppm_pwm);
+	snprintf(line4, sizeof(line4), "U:%.0fppm", data.co2_ppm_uart);
 
 	print_line(0 * OLED_LINE_HEIGHT, line1);
 	print_line(1 * OLED_LINE_HEIGHT, line2);
