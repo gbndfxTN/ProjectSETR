@@ -16,35 +16,26 @@ bool parse_remote_frame(const char *line, float &co2_ppm_uart, float &co2_ppm_pw
         return false;
     }
 
+    // Accepte les lignes de log qui prefixent la trame,
+    // ex: "[UART_LINK] Trame envoyee: CO2_UART:0;CO2_PWM:0;PRES:0"
+    const char *payload = strstr(line, "CO2_UART:");
+    if (payload == nullptr) {
+        return false;
+    }
+
     float parsed_co2_uart = 0.0f;
     float parsed_co2_pwm = 0.0f;
     int parsed_presence = 0;
 
     // Format principal: CO2_UART:700;CO2_PWM:690;PRES:1
-    if (sscanf(line, "CO2_UART:%f;CO2_PWM:%f;PRES:%d", &parsed_co2_uart, &parsed_co2_pwm, &parsed_presence) == 3) {
+    if (sscanf(payload, "CO2_UART:%f;CO2_PWM:%f;PRES:%d", &parsed_co2_uart, &parsed_co2_pwm, &parsed_presence) == 3) {
         co2_ppm_uart = parsed_co2_uart;
         co2_ppm_pwm = parsed_co2_pwm;
         presence_detected = (parsed_presence != 0);
         return true;
     }
 
-    // Compatibilite avec l'ancien format: CO2:700;PRES:1
-    if (sscanf(line, "CO2:%f;PRES:%d", &parsed_co2_uart, &parsed_presence) == 2) {
-        co2_ppm_uart = parsed_co2_uart;
-        co2_ppm_pwm = parsed_co2_uart;
-        presence_detected = (parsed_presence != 0);
-        return true;
-    }
-
-    // Format de secours: 700;1
-    if (sscanf(line, "%f;%d", &parsed_co2_uart, &parsed_presence) != 2) {
-        return false;
-    }
-
-    co2_ppm_uart = parsed_co2_uart;
-    co2_ppm_pwm = parsed_co2_uart;
-    presence_detected = (parsed_presence != 0);
-    return true;
+    return false;
 }
 }
 

@@ -19,6 +19,6 @@ void sensor_uart_init();
 bool sensor_uart_read_remote(float &co2_ppm_uart, float &co2_ppm_pwm, bool &presence_detected);
 
 // Trame attendue (ASCII): "CO2_UART:<ppm>;CO2_PWM:<ppm>;PRES:<0|1>\n"
-// Fallback accepte: "CO2:<ppm>;PRES:<0|1>\n" et "<ppm>;<0|1>"
+// Le parser accepte aussi un prefixe de log avant "CO2_UART:".
 
 #endif
