@@ -4,6 +4,7 @@
 #include "sensor_data.h"
 #include "display_manager.h"
 #include "config.h"
+#include "firebase_uploader.h"
 #include <stdio.h>
 #include <freertos/queue.h>
 
@@ -118,15 +119,17 @@ void setup() {
     return;
   }
 
+  firebase_uploader_init();
+
   xTaskCreatePinnedToCore(task_consumer_display, "DisplayConsumer", 8192, NULL, 2, NULL, 1);
   xTaskCreatePinnedToCore(task_producer_dht, "DhtProducer", 4096, NULL, 1, NULL, 1);
   xTaskCreatePinnedToCore(task_producer_rs232, "UartProducer", 4096, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(firebase_uploader_task, "FirebaseUploader", 8192, NULL, 1, NULL, 0);
   vTaskDelay(pdMS_TO_TICKS(100));
-  printf("Tasks initialisees (2 producteurs / 1 consommateur)\n");
+  printf("Tasks initialisees (2 producteurs / 1 consommateur / 1 uploader Firebase)\n");
 }
 
 
 void loop() {
   vTaskDelay(pdMS_TO_TICKS(1000));
 }
-
