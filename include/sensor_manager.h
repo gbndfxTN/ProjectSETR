@@ -11,13 +11,13 @@
 
 void sensor_init();
 
-// Lire les capteurs et mettre à jour les données globales
-void sensor_read_dht();
-void sensor_read_gas();
-void sensor_read_ultrason();
+// Lire le capteur local temperature / humidite
+bool sensor_read_dht(float &temperature, float &humidity);
 
-// Lire tous les capteurs
+// Initialiser et lire la liaison RS232 venant de l'autre ESP32
+void sensor_uart_init();
+bool sensor_uart_read_remote(float &co2_ppm, bool &presence_detected);
 
-void sensor_read_all();
+// Trame attendue (ASCII): "CO2:<ppm>;PRES:<0|1>\n"
 
 #endif

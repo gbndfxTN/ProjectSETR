@@ -1,67 +1,126 @@
 #include <Arduino.h>
 #include "global_data.h"
 #include "sensor_manager.h"
+#include "sensor_data.h"
 #include "display_manager.h"
 #include "config.h"
-#include <time.h>
 #include <stdio.h>
-#include <string.h>
-#include <WiFi.h>
-#include "esp_task_wdt.h"
+#include <freertos/queue.h>
 
+enum class SensorMessageType : uint8_t {
+  Dht,
+  Remote
+};
 
-void task_sensors(void*) {
+struct SensorMessage {
+  SensorMessageType type;
+  float value1;
+  float value2;
+  bool flag;
+};
+
+QueueHandle_t g_sensor_queue = nullptr;
+
+void task_producer_dht(void*) {
   sensor_init();
   for (;;) {
-    sensor_read_all();
-    vTaskDelay(pdMS_TO_TICKS(DHT_DELAY));  // 2 s
+    float temperature = 0.0f;
+    float humidity = 0.0f;
+
+    if (sensor_read_dht(temperature, humidity) && g_sensor_queue != nullptr) {
+      SensorMessage msg{};
+      msg.type = SensorMessageType::Dht;
+      msg.value1 = temperature;
+      msg.value2 = humidity;
+      msg.flag = false;
+      xQueueSend(g_sensor_queue, &msg, pdMS_TO_TICKS(20));
+    }
+
+    vTaskDelay(pdMS_TO_TICKS(DHT_DELAY));
   }
 }
 
-void task_display(void*) {
-  display_init();
+void task_producer_rs232(void*) {
+#if SIMULATE_REMOTE_ESP
+  static const float sim_co2_values[] = {520.0f, 610.0f, 750.0f, 940.0f, 680.0f};
+  static const bool sim_presence_values[] = {false, true, true, true, false};
+  const size_t sim_count = sizeof(sim_co2_values) / sizeof(sim_co2_values[0]);
+  size_t sim_idx = 0;
+
+  printf("[SIM] Producteur distant simule active\n");
   for (;;) {
+    SensorMessage msg{};
+    msg.type = SensorMessageType::Remote;
+    msg.value1 = sim_co2_values[sim_idx];
+    msg.value2 = 0.0f;
+    msg.flag = sim_presence_values[sim_idx];
+
+    if (g_sensor_queue != nullptr) {
+      xQueueSend(g_sensor_queue, &msg, pdMS_TO_TICKS(20));
+    }
+
+    sim_idx = (sim_idx + 1) % sim_count;
+    vTaskDelay(pdMS_TO_TICKS(REMOTE_SIM_DELAY_MS));
+  }
+#else
+  sensor_uart_init();
+  for (;;) {
+    float co2_ppm = 0.0f;
+    bool presence = false;
+
+    if (sensor_uart_read_remote(co2_ppm, presence) && g_sensor_queue != nullptr) {
+      SensorMessage msg{};
+      msg.type = SensorMessageType::Remote;
+      msg.value1 = co2_ppm;
+      msg.value2 = 0.0f;
+      msg.flag = presence;
+      xQueueSend(g_sensor_queue, &msg, pdMS_TO_TICKS(20));
+    }
+
+    vTaskDelay(pdMS_TO_TICKS(10));
+  }
+#endif
+}
+
+void task_consumer_display(void*) {
+  display_init();
+
+  TickType_t last_wake = xTaskGetTickCount();
+  for (;;) {
+    SensorMessage msg{};
+    while (g_sensor_queue != nullptr && xQueueReceive(g_sensor_queue, &msg, 0) == pdTRUE) {
+      if (msg.type == SensorMessageType::Dht) {
+        sensor_data_set_dht(msg.value1, msg.value2);
+      } else if (msg.type == SensorMessageType::Remote) {
+        sensor_data_set_remote(msg.value1, msg.flag);
+      }
+    }
+
     display_update();
-    vTaskDelay(pdMS_TO_TICKS(1000 / FPS));  // 30 fps
+    vTaskDelayUntil(&last_wake, pdMS_TO_TICKS(1000 / FPS));
   }
 }
 
 
 void setup() {
   Serial.begin(115200);
-  printf("Setup completed.\n");
+  printf("Setup OLED ESP32: temperature/humidity + RS232\n");
 
   // Initialiser les mutex des données globales
   g_data.init();
   printf("Global data mutex initialized\n");
 
-  // Configuration WiFi
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD, 6);
-  printf("Connexion WiFi...\n");
-  
-  int attempts = 0;
-  while (WiFi.status() != WL_CONNECTED && attempts < 20) {
-    delay(500);
-    printf(".");
-    fflush(stdout);
-    attempts++;
+  g_sensor_queue = xQueueCreate(SENSOR_QUEUE_LENGTH, sizeof(SensorMessage));
+  if (g_sensor_queue == nullptr) {
+    printf("Erreur: queue capteurs non creee\n");
+    return;
   }
-  
-  if (WiFi.status() == WL_CONNECTED) {
-    printf("\nWiFi connecté!\n");
-    printf("IP: %s\n", WiFi.localIP().toString().c_str());
-  
-    esp_task_wdt_delete(xTaskGetIdleTaskHandleForCPU(0));
-    esp_task_wdt_delete(xTaskGetIdleTaskHandleForCPU(1));
 
-    // Core 1 : Display + Capteurs (local, temps réel)
-    xTaskCreatePinnedToCore(task_display,   "Display",   8192,  NULL, 1, NULL, 1);
-    xTaskCreatePinnedToCore(task_sensors,   "Sensors",   4096,  NULL, 1, NULL, 1);
-    vTaskDelay(pdMS_TO_TICKS(100));
-    printf("Tasks created on Core 1\n");
-  } else {
-    printf("\nErreur de connexion WiFi\n");
-}
+  xTaskCreatePinnedToCore(task_consumer_display, "DisplayConsumer", 8192, NULL, 2, NULL, 1);
+  xTaskCreatePinnedToCore(task_producer_dht, "DhtProducer", 4096, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(task_producer_rs232, "UartProducer", 4096, NULL, 1, NULL, 1);
+  vTaskDelay(pdMS_TO_TICKS(100));
+  printf("Tasks initialisees (2 producteurs / 1 consommateur)\n");
 }
 
 

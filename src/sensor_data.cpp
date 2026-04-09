@@ -20,20 +20,11 @@ bool sensor_data_set_dht(float temperature, float humidity) {
   return false;
 }
 
-bool sensor_data_set_gas(float gas_resistance) {
+bool sensor_data_set_remote(float co2_ppm, bool presence_detected) {
   if (xSemaphoreTake(g_data.sensors_mutex, pdMS_TO_TICKS(200))) {
-    g_data.sensors.gas_resistance = gas_resistance;
-    g_data.sensors.last_update_gas = millis();
-    xSemaphoreGive(g_data.sensors_mutex);
-    return true;
-  }
-  return false;
-}
-
-bool sensor_data_set_ultrason(float distance) {
-  if (xSemaphoreTake(g_data.sensors_mutex, pdMS_TO_TICKS(200))) {
-    g_data.sensors.distance = distance;
-    g_data.sensors.last_update_ultrason = millis();
+    g_data.sensors.co2_ppm = co2_ppm;
+    g_data.sensors.presence_detected = presence_detected;
+    g_data.sensors.last_update_remote = millis();
     xSemaphoreGive(g_data.sensors_mutex);
     return true;
   }

@@ -11,6 +11,7 @@
 namespace {
 Adafruit_SSD1306 oled(OLED_WIDTH_PX, OLED_HEIGHT_PX, &Wire, OLED_RESET_PIN);
 bool oled_ready = false;
+bool screen_blank = false;
 
 const char *safe_text(const char *text) {
 	return (text != nullptr) ? text : "";
@@ -24,10 +25,21 @@ void print_line(uint8_t y, const char *text) {
 	oled.setCursor(0, y);
 	oled.print(buffer);
 }
+
+bool sync_is_active() {
+	#if USE_EXTERNAL_SYNC
+	return digitalRead(SYNC_DISPLAY_PIN) == SYNC_DISPLAY_ACTIVE_LEVEL;
+	#else
+	return true;
+	#endif
+}
 }
 
 void display_init() {
 	Wire.begin(OLED_SDA_PIN, OLED_SCL_PIN);
+	#if USE_EXTERNAL_SYNC
+	pinMode(SYNC_DISPLAY_PIN, INPUT);
+	#endif
 
 	if (!oled.begin(SSD1306_SWITCHCAPVCC, OLED_I2C_ADDRESS)) {
 		Serial.println("[OLED] Erreur initialisation SSD1306");
@@ -51,31 +63,40 @@ void display_update() {
 		return;
 	}
 
+	if (!sync_is_active()) {
+		if (!screen_blank) {
+			oled.clearDisplay();
+			oled.display();
+			screen_blank = true;
+		}
+		return;
+	}
+	screen_blank = false;
+
 	SensorData data{};
 	if (!sensor_data_get(data)) {
 		return;
 	}
 
-	const bool detection = (data.distance > 0.0f) && (data.distance <= ULTRASON_DETECTION_CM);
-
 	oled.clearDisplay();
+	char line1[OLED_MAX_CHARS_PER_LINE + 1];
+	char line2[OLED_MAX_CHARS_PER_LINE + 1];
+	char line3[OLED_MAX_CHARS_PER_LINE + 1];
+	char line4[OLED_MAX_CHARS_PER_LINE + 1];
 
-	if (detection) {
-		char line1[OLED_MAX_CHARS_PER_LINE + 1];
-		char line2[OLED_MAX_CHARS_PER_LINE + 1];
-		char line3[OLED_MAX_CHARS_PER_LINE + 1];
-		char line4[OLED_MAX_CHARS_PER_LINE + 1];
+	snprintf(line1, sizeof(line1), "%s", data.presence_detected ? "PRESENCE DETECTEE" : "Zone vide");
+	snprintf(line2, sizeof(line2), "T:%.1fC H:%.1f%%", data.temperature, data.humidity);
+	snprintf(line3, sizeof(line3), "CO2: %.0f ppm", data.co2_ppm);
+	#if USE_EXTERNAL_SYNC
+	snprintf(line4, sizeof(line4), "SYNC: EXTERNE");
+	#else
+	snprintf(line4, sizeof(line4), "SYNC: OFF (DEBUG)");
+	#endif
 
-		snprintf(line1, sizeof(line1), "DETECTION!");
-		snprintf(line2, sizeof(line2), "T:%.1fC H:%.1f%%", data.temperature, data.humidity);
-		snprintf(line3, sizeof(line3), "Gaz : %.0f", data.gas_resistance);
-		snprintf(line4, sizeof(line4), "Dist: %.1f cm", data.distance);
-
-		print_line(0 * OLED_LINE_HEIGHT, line1);
-		print_line(1 * OLED_LINE_HEIGHT, line2);
-		print_line(2 * OLED_LINE_HEIGHT, line3);
-		print_line(3 * OLED_LINE_HEIGHT, line4);
-	}
+	print_line(0 * OLED_LINE_HEIGHT, line1);
+	print_line(1 * OLED_LINE_HEIGHT, line2);
+	print_line(2 * OLED_LINE_HEIGHT, line3);
+	print_line(3 * OLED_LINE_HEIGHT, line4);
 
 	oled.display();
 }

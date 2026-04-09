@@ -11,8 +11,6 @@
       "left": 182.63,
       "attrs": { "i2cAddress": "0x3c" }
     },
-    { "type": "wokwi-hc-sr04", "id": "ultrasonic1", "top": -46.5, "left": -42.5, "attrs": {} },
-    { "type": "wokwi-gas-sensor", "id": "gas1", "top": 79.5, "left": -146.6, "attrs": {} },
     { "type": "wokwi-dht22", "id": "dht1", "top": 105.9, "left": 282.6, "attrs": {} }
   ],
   "connections": [
@@ -21,13 +19,6 @@
     [ "dht1:VCC", "esp:3V3", "red", [ "h-38.4", "v-115.2", "h-163.35" ] ],
     [ "dht1:GND", "esp:GND.2", "black", [ "v9.6", "h-57.6", "v-86.4" ] ],
     [ "esp:4", "dht1:SDA", "green", [ "h0" ] ],
-    [ "ultrasonic1:TRIG", "esp:5", "green", [ "v19.2", "h38", "v268.8", "h144", "v-105.6" ] ],
-    [ "ultrasonic1:ECHO", "esp:18", "green", [ "v345.6", "h181.6", "v-124.8" ] ],
-    [ "ultrasonic1:GND", "esp:GND.2", "black", [ "v28.8", "h133.2" ] ],
-    [ "ultrasonic1:VCC", "esp:5V", "red", [ "v0" ] ],
-    [ "esp:34", "gas1:AOUT", "green", [ "h-9.45", "v-28.8", "h-67.2", "v-57.6" ] ],
-    [ "gas1:GND", "esp:GND.1", "black", [ "h19.2", "v104.8", "h57.6", "v48" ] ],
-    [ "gas1:VCC", "esp:5V", "red", [ "h9.6", "v191.1" ] ],
     [ "oled1:GND", "esp:GND.2", "black", [ "v-19.2", "h-48", "v124.8", "h9.6", "v86.4" ] ],
     [ "oled1:VCC", "esp:3V3", "red", [ "v-28.8", "h-67.05", "v134.4", "h-67.35" ] ],
     [ "oled1:SDA", "esp:21", "green", [ "v-19.2", "h115.27", "v345.6", "h-124.8", "v-76.8" ] ],

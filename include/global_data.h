@@ -12,16 +12,15 @@ struct SensorData {
   float temperature;
   float humidity;
   
-  // Gaz
-  float gas_resistance;
+  // CO2 (recu via RS232 depuis l'autre ESP32)
+  float co2_ppm;
   
-  // Ultrasonic
-  float distance;
+  // Presence (recu via RS232)
+  bool presence_detected;
   
   // Timestamps
   unsigned long last_update_dht;
-  unsigned long last_update_gas;
-  unsigned long last_update_ultrason;
+  unsigned long last_update_remote;
 };
 
 // Structure pour les données d'affichage
