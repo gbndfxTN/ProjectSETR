@@ -82,15 +82,17 @@ bool sensor_uart_read_remote(float &co2_ppm_uart, float &co2_ppm_pwm, bool &pres
     while (rs232.available() > 0) {
         const char c = static_cast<char>(rs232.read());
 
-        if (c == '\r') {
-            continue;
-        }
+        if (c == '\r' || c == '\n') {
+            if (rx_len == 0) {
+                continue;
+            }
 
-        if (c == '\n') {
             rx_line[rx_len] = '\0';
             const bool parsed = parse_remote_frame(rx_line, co2_ppm_uart, co2_ppm_pwm, presence_detected);
             if (!parsed) {
                 printf("[RS232] Trame ignoree: %s\n", rx_line);
+            } else {
+                printf("[RS232] Trame OK U=%.0f P=%.0f PRES=%d\n", co2_ppm_uart, co2_ppm_pwm, presence_detected ? 1 : 0);
             }
             rx_len = 0;
             return parsed;
