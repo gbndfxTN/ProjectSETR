@@ -42,17 +42,18 @@ void task_producer_dht(void*) {
 
 void task_producer_rs232(void*) {
 #if SIMULATE_REMOTE_ESP
-  static const float sim_co2_values[] = {520.0f, 610.0f, 750.0f, 940.0f, 680.0f};
+  static const float sim_co2_uart_values[] = {520.0f, 610.0f, 750.0f, 940.0f, 680.0f};
+  static const float sim_co2_pwm_values[] = {505.0f, 625.0f, 735.0f, 960.0f, 665.0f};
   static const bool sim_presence_values[] = {false, true, true, true, false};
-  const size_t sim_count = sizeof(sim_co2_values) / sizeof(sim_co2_values[0]);
+  const size_t sim_count = sizeof(sim_co2_uart_values) / sizeof(sim_co2_uart_values[0]);
   size_t sim_idx = 0;
 
   printf("[SIM] Producteur distant simule active\n");
   for (;;) {
     SensorMessage msg{};
     msg.type = SensorMessageType::Remote;
-    msg.value1 = sim_co2_values[sim_idx];
-    msg.value2 = 0.0f;
+    msg.value1 = sim_co2_uart_values[sim_idx];
+    msg.value2 = sim_co2_pwm_values[sim_idx];
     msg.flag = sim_presence_values[sim_idx];
 
     if (g_sensor_queue != nullptr) {

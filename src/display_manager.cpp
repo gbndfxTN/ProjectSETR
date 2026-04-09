@@ -63,7 +63,12 @@ void display_update() {
 		return;
 	}
 
-	if (!sync_is_active()) {
+	SensorData data{};
+	if (!sensor_data_get(data)) {
+		return;
+	}
+
+	if (!data.presence_detected) {
 		if (!screen_blank) {
 			oled.clearDisplay();
 			oled.display();
@@ -73,25 +78,16 @@ void display_update() {
 	}
 	screen_blank = false;
 
-	SensorData data{};
-	if (!sensor_data_get(data)) {
-		return;
-	}
-
 	oled.clearDisplay();
 	char line1[OLED_MAX_CHARS_PER_LINE + 1];
 	char line2[OLED_MAX_CHARS_PER_LINE + 1];
 	char line3[OLED_MAX_CHARS_PER_LINE + 1];
 	char line4[OLED_MAX_CHARS_PER_LINE + 1];
 
-	snprintf(line1, sizeof(line1), "%s", data.presence_detected ? "PRESENCE DETECTEE" : "Zone vide");
-	snprintf(line2, sizeof(line2), "T:%.1fC H:%.1f%%", data.temperature, data.humidity);
-	snprintf(line3, sizeof(line3), "U:%.0f P:%.0f ppm", data.co2_ppm_uart, data.co2_ppm_pwm);
-	#if USE_EXTERNAL_SYNC
-	snprintf(line4, sizeof(line4), "SYNC: EXTERNE");
-	#else
-	snprintf(line4, sizeof(line4), "SYNC: OFF (DEBUG)");
-	#endif
+	snprintf(line1, sizeof(line1), "Temperature: %.1fC", data.temperature);
+	snprintf(line2, sizeof(line2), "Humidite: %.1f%%", data.humidity);
+	snprintf(line3, sizeof(line3), "CO2 PWM: %.0f ppm", data.co2_ppm_pwm);
+	snprintf(line4, sizeof(line4), "CO2 UART: %.0f ppm", data.co2_ppm_uart);
 
 	print_line(0 * OLED_LINE_HEIGHT, line1);
 	print_line(1 * OLED_LINE_HEIGHT, line2);
