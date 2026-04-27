@@ -13,7 +13,7 @@
 #define MQTT_USER "gbndfx"
 #define MQTT_PASSWORD "?Nala08200!!"
 
-// Firebase Realtime Database (demo scolaire)
+// Firebase Realtime Database
 #define FIREBASE_DATABASE_URL                                                  \
   "https://setr-26895-default-rtdb.europe-west1.firebasedatabase.app"
 #define FIREBASE_DEVICE_ID "demo-esp32-a84k2m9"

@@ -73,7 +73,7 @@ void build_payload(const SensorData &data, char *buffer, size_t buffer_size) {
       data.presence_detected ? "true" : "false");
 }
 
-bool send_request(const char *method, const char *url, const char *payload) {
+bool send_request(const char *method, const char *url, char *payload) {
   WiFiClientSecure client;
   client.setInsecure();
 
@@ -86,7 +86,13 @@ bool send_request(const char *method, const char *url, const char *payload) {
   http.setTimeout(FIREBASE_HTTP_TIMEOUT_MS);
   http.addHeader("Content-Type", "application/json");
 
-  const int status = http.sendRequest(method, reinterpret_cast<const uint8_t *>(payload), strlen(payload));
+    const size_t payload_len = strnlen(payload, FIREBASE_BODY_BUFFER_SIZE - 1);
+    payload[payload_len] = '\0';
+
+    const int status = http.sendRequest(
+      method,
+      reinterpret_cast<uint8_t *>(payload),
+      payload_len);
   if (status <= 0) {
     printf("[FIREBASE] %s %s a echoue: %s\n", method, url, http.errorToString(status).c_str());
     http.end();
