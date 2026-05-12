@@ -13,6 +13,7 @@ namespace {
 Adafruit_SSD1306 oled(OLED_WIDTH_PX, OLED_HEIGHT_PX, &Wire, OLED_RESET_PIN);
 bool oled_ready = false;
 bool screen_blank = false;
+constexpr unsigned long DHT_STALE_TIMEOUT_MS = 5000UL;
 
 const char *safe_text(const char *text) {
 	return (text != nullptr) ? text : "";
@@ -68,6 +69,7 @@ void display_update() {
 	if (!sensor_data_get(data)) {
 		return;
 	}
+	const bool dht_ok = data.last_update_dht != 0UL && (millis() - data.last_update_dht) < DHT_STALE_TIMEOUT_MS;
 
 	if (data.last_update_remote == 0UL) {
 		oled.clearDisplay();
@@ -78,7 +80,7 @@ void display_update() {
 
 		snprintf(line1, sizeof(line1), "ATTENTE");
 		snprintf(line2, sizeof(line2), "RS232");
-		snprintf(line3, sizeof(line3), "T:%.1fC", data.temperature);
+		snprintf(line3, sizeof(line3), dht_ok ? "T:%.1fC" : "ERREUR", data.temperature);
 		snprintf(line4, sizeof(line4), "H:%.1f%%", data.humidity);
 
 		display_data_set(line1, line2, line3, line4);
@@ -107,7 +109,7 @@ void display_update() {
 	char line3[OLED_MAX_CHARS_PER_LINE + 1];
 	char line4[OLED_MAX_CHARS_PER_LINE + 1];
 
-	snprintf(line1, sizeof(line1), "T:%.1fC", data.temperature);
+	snprintf(line1, sizeof(line1), dht_ok ? "T:%.1fC" : "ERREUR", data.temperature);
 	snprintf(line2, sizeof(line2), "H:%.1f%%", data.humidity);
 	snprintf(line3, sizeof(line3), "P:%.0fppm", data.co2_ppm_pwm);
 	snprintf(line4, sizeof(line4), "U:%.0fppm", data.co2_ppm_uart);
