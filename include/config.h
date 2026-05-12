@@ -2,8 +2,8 @@
 #define CONFIG_H
 
 // WIFI
-#define WIFI_SSID "Pixel" // WiFi simulé par Wokwi
-#define WIFI_PASSWORD "welcomesp"
+#define WIFI_SSID "Urbanloop" 
+#define WIFI_PASSWORD "Thinkdifferent"
 // #define WIFI_SSID "TON_SSID"
 // #define WIFI_PASSWORD "TON_MOT_DE_PASSE"
 
