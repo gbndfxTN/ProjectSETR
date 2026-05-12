@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 3,
+  "planId": "1777271221493",
+  "planKind": "feature",
+  "targetBranch": "develop",
+  "targetBranchesByProjectId": {
+    "project-projectsetr-1777271221428": "main"
+  },
+  "status": "draft",
+  "expectedProjectIds": [
+    "project-projectsetr-1777271221428"
+  ],
+  "contextProjectIds": [],
+  "participants": [
+    {
+      "projectId": "project-projectsetr-1777271221428",
+      "repoPathSnapshot": "/Users/oscarlahaie/github/ProjectSETR",
+      "mountName": null,
+      "displayName": null
+    }
+  ],
+  "revision": 1,
+  "updatedAt": "2026-04-27T06:27:01.493Z",
+  "contentHashes": {
+    "plan": "h9e07af97",
+    "needs": "h741638a5",
+    "chat": "h811c9dc5"
+  },
+  "needCount": 0,
+  "conversation": {
+    "conversationId": null,
+    "title": "new plan",
+    "messageCount": 0,
+    "lastMessageAt": null
+  },
+  "deletion": null
+}

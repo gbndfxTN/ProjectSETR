@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "id": "manual-feature-1777271294280-yyub78",
+  "title": "New feature",
+  "description": "",
+  "status": "Pending",
+  "draft": true,
+  "featureSlug": null,
+  "branchName": null,
+  "baseBranch": "main",
+  "conversationId": "6a53f854-126f-454b-af37-75959a722808",
+  "projectIds": [
+    "project-projectsetr-1777271221428",
+    "project-projectsetr2-1777271234294"
+  ],
+  "executionTargets": [],
+  "updatedAt": "2026-04-27T06:29:07.133Z"
+}
