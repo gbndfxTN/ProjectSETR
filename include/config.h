@@ -7,12 +7,6 @@
 // #define WIFI_SSID "TON_SSID"
 // #define WIFI_PASSWORD "TON_MOT_DE_PASSE"
 
-// Serveur MQTT
-#define MQTT_SERVER "192.168.1.24"
-#define MQTT_PORT 1883
-#define MQTT_USER "gbndfx"
-#define MQTT_PASSWORD "?Nala08200!!"
-
 // Firebase Realtime Database
 #define FIREBASE_DATABASE_URL                                                  \
   "https://setr-26895-default-rtdb.europe-west1.firebasedatabase.app"
@@ -25,7 +19,7 @@
 // PINS capteurs
 #define DHT_PIN 15
 #define DHT_TYPE DHT22
-#define DHT_DELAY 2000
+#define DHT_DELAY 5000
 
 // RS232 (liaison avec l'autre ESP32)
 #define RS232_BAUD 9600
