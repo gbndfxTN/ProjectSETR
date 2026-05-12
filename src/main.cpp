@@ -5,6 +5,7 @@
 #include "display_manager.h"
 #include "config.h"
 #include "firebase_uploader.h"
+#include "web_dashboard.h"
 #include <stdio.h>
 #include <freertos/queue.h>
 
@@ -120,6 +121,7 @@ void setup() {
   }
 
   firebase_uploader_init();
+  web_dashboard_init();
 
   xTaskCreatePinnedToCore(task_consumer_display, "DisplayConsumer", 8192, NULL, 2, NULL, 1);
   xTaskCreatePinnedToCore(task_producer_dht, "DhtProducer", 4096, NULL, 1, NULL, 1);
@@ -131,5 +133,6 @@ void setup() {
 
 
 void loop() {
-  vTaskDelay(pdMS_TO_TICKS(1000));
+  web_dashboard_loop();
+  vTaskDelay(pdMS_TO_TICKS(20));
 }
