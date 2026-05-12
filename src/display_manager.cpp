@@ -7,6 +7,7 @@
 #include <stdio.h>
 
 #include "sensor_data.h"
+#include "display_data.h"
 
 namespace {
 Adafruit_SSD1306 oled(OLED_WIDTH_PX, OLED_HEIGHT_PX, &Wire, OLED_RESET_PIN);
@@ -80,6 +81,7 @@ void display_update() {
 		snprintf(line3, sizeof(line3), "T:%.1fC", data.temperature);
 		snprintf(line4, sizeof(line4), "H:%.1f%%", data.humidity);
 
+		display_data_set(line1, line2, line3, line4);
 		print_line(0 * OLED_LINE_HEIGHT, line1);
 		print_line(1 * OLED_LINE_HEIGHT, line2);
 		print_line(2 * OLED_LINE_HEIGHT, line3);
@@ -110,6 +112,7 @@ void display_update() {
 	snprintf(line3, sizeof(line3), "P:%.0fppm", data.co2_ppm_pwm);
 	snprintf(line4, sizeof(line4), "U:%.0fppm", data.co2_ppm_uart);
 
+	display_data_set(line1, line2, line3, line4);
 	print_line(0 * OLED_LINE_HEIGHT, line1);
 	print_line(1 * OLED_LINE_HEIGHT, line2);
 	print_line(2 * OLED_LINE_HEIGHT, line3);

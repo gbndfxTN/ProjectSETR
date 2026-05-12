@@ -1,6 +1,7 @@
 #include "sensor_manager.h"
 #include <stdlib.h>
 #include <string.h>
+#include <freertos/task.h>
 
 // Instance du DHT
 DHT dht(DHT_PIN, DHT_TYPE);
@@ -44,7 +45,7 @@ bool parse_remote_frame(const char *line, float &co2_ppm_uart, float &co2_ppm_pw
 void sensor_init() {
     dht.begin();
     // DHT22 a souvent besoin d'un court temps de stabilisation apres begin().
-    delay(2000);
+    vTaskDelay(pdMS_TO_TICKS(2000));
     printf("Capteur DHT initialise\n");
 }
 

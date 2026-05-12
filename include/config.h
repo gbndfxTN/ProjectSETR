@@ -61,4 +61,8 @@
 #define FPS 30
 #define BRIGHTNESS 128
 
+// Delais supplementaires
+#define FIREBASE_TASK_DELAY_MS 500
+#define RS232_POLL_DELAY_MS 10
+
 #endif

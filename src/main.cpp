@@ -35,7 +35,9 @@ void task_producer_dht(void*) {
       msg.value1 = temperature;
       msg.value2 = humidity;
       msg.flag = false;
-      xQueueSend(g_sensor_queue, &msg, pdMS_TO_TICKS(20));
+      if (xQueueSend(g_sensor_queue, &msg, pdMS_TO_TICKS(20)) != pdTRUE) {
+        printf("[DHT] Perte de message (queue pleine)\n");
+      }
     }
 
     vTaskDelay(pdMS_TO_TICKS(DHT_DELAY));
@@ -59,7 +61,9 @@ void task_producer_rs232(void*) {
     msg.flag = sim_presence_values[sim_idx];
 
     if (g_sensor_queue != nullptr) {
-      xQueueSend(g_sensor_queue, &msg, pdMS_TO_TICKS(20));
+      if (xQueueSend(g_sensor_queue, &msg, pdMS_TO_TICKS(20)) != pdTRUE) {
+        printf("[SIM] Perte de message (queue pleine)\n");
+      }
     }
 
     sim_idx = (sim_idx + 1) % sim_count;
@@ -78,10 +82,12 @@ void task_producer_rs232(void*) {
       msg.value1 = co2_ppm_uart;
       msg.value2 = co2_ppm_pwm;
       msg.flag = presence;
-      xQueueSend(g_sensor_queue, &msg, pdMS_TO_TICKS(20));
+      if (xQueueSend(g_sensor_queue, &msg, pdMS_TO_TICKS(20)) != pdTRUE) {
+        printf("[UART] Perte de message (queue pleine)\n");
+      }
     }
 
-    vTaskDelay(pdMS_TO_TICKS(10));
+    vTaskDelay(pdMS_TO_TICKS(RS232_POLL_DELAY_MS));
   }
 #endif
 }

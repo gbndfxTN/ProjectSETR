@@ -10,7 +10,6 @@
 #include "sensor_data.h"
 
 namespace {
-constexpr TickType_t FIREBASE_TASK_DELAY_MS = 500;
 constexpr size_t FIREBASE_URL_BUFFER_SIZE = 192;
 constexpr size_t FIREBASE_BODY_BUFFER_SIZE = 256;
 
